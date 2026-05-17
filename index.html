@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bethlehem Tourist Map</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        /* Full screen map styling */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        /* Custom styling for map title overlay */
+        .map-title {
+            position: absolute;
+            top: 20px;
+            left: 50px;
+            z-index: 1000;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin: 0;
+        }
+        .map-title h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #2c3e50;
+        }
+        .map-title p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="map-title">
+        <h1>Bethlehem Historical & Tourist Map</h1>
+        <p>Coverage Area: ~40 km² (City Center & Environs)</p>
+    </div>
+
+    <div id="map"></div>
+
+    <script href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Coordinates focused on Bethlehem Center
+        // Zoom level 14 perfectly captures an area of approx 40 km² around the city
+        const bethlehemCenter = [31.7054, 35.2024];
+        
+        // Initialize the map
+        const map = L.map('map').setView(bethlehemCenter, 14);
+
+        // Add OpenStreetMap Tile Layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Define tourist locations data (5 Key Historic Sites)
+        const locations = [
+            {
+                name: "Church of the Nativity",
+                coords: [31.7043, 35.2076],
+                description: "The birthplace of Jesus Christ and one of the oldest working churches in the world."
+            },
+            {
+                name: "Manger Square",
+                coords: [31.7046, 35.2062],
+                description: "The focal point of Bethlehem city center, hosting cultural festivals and Christmas celebrations."
+            },
+            {
+                name: "The Milk Grotto",
+                coords: [31.7037, 35.2091],
+                description: "A sacred stone grotto where tradition holds the Holy Family found refuge."
+            },
+            {
+                name: "Shepherds' Field (Beit Sahour)",
+                coords: [31.7028, 35.2341],
+                description: "Located within the 40 km² wider area, where the angels announced the birth of Jesus."
+            },
+            {
+                name: "Solomon's Pools",
+                coords: [31.6894, 35.1691],
+                description: "Ancient historic reservoirs located just southwest of Bethlehem, showcasing historical water engineering."
+            }
+        ];
+
+        // Loop through locations to add Markers and Popups
+        locations.forEach(function(site) {
+            L.marker(site.coords)
+                .addTo(map)
+                .bindPopup(`<b>${site.name}</b><br>${site.description}`)
+                .openPopup(); // Optional: removes openPopup() if you don't want them all open at once
+        });
+
+        // Optional: Add a visual circle showing the ~40 km² regional coverage zone
+        // 40 sq km area roughly equals a radius of ~3500 meters from the center
+        L.circle(bethlehemCenter, {
+            color: '#3498db',
+            fillColor: '#3498db',
+            fillOpacity: 0.08,
+            radius: 3500 
+        }).addTo(map).bindPopup("Approximate 40 km² Study & Tourism Boundary");
+
+    </script>
+</body>
+</html>
