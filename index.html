@@ -8,26 +8,25 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
+        /* Reset and layout */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            background-color: #2c3e50; /* Dark modern background */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: #2c3e50;
+            font-family: Arial, sans-serif;
         }
 
-        /* 1. The Map Frame - Professional layout wrapping the map */
+        /* Fixed simplified Map Frame styling to eliminate loading bars or layout distortion */
         .map-frame {
-            width: 95%;
-            height: 90vh;
-            border: 8px solid #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+            width: 96%;
+            height: 92vh;
+            margin: 4vh auto;
+            border: 10px solid #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
             position: relative;
-            overflow: hidden;
         }
 
         #map {
@@ -35,45 +34,44 @@
             height: 100%;
         }
 
-        /* Title Overlay Inside Frame */
+        /* Title Overlay Box */
         .map-title {
             position: absolute;
             top: 20px;
             left: 20px;
             z-index: 1000;
             background: rgba(255, 255, 255, 0.95);
-            padding: 12px 20px;
-            border-radius: 6px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            padding: 10px 15px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             border-left: 5px solid #2980b9;
         }
         .map-title h1 { margin: 0; font-size: 18px; color: #2c3e50; }
         .map-title p { margin: 4px 0 0 0; font-size: 11px; color: #7f8c8d; }
 
-        /* 2. Styling for Popup Images - For the historic sites */
-        .popup-image {
-            width: 100%;
-            max-width: 150px;
-            height: auto;
+        /* Popup Image styling */
+        .popup-img {
+            width: 150px;
+            height: 100px;
+            object-fit: cover;
             border-radius: 4px;
-            margin-bottom: 5px;
+            margin-top: 5px;
             display: block;
         }
 
-        /* 3. Styling for Map Legend (معالم الخريطة) */
+        /* Map Legend Panel (معالم الخريطة) */
         .legend {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
+            background: white;
+            padding: 10px;
             line-height: 18px;
             color: #333;
-            border-radius: 6px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             font-size: 12px;
         }
-        .legend h4 { margin: 0 0 8px 0; font-size: 13px; color: #2c3e50; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
-        .legend i { width: 14px; height: 14px; float: left; margin-right: 8px; opacity: 0.8; border-radius: 50%; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
-        .legend-item span { margin-left: 5px; }
+        .legend h4 { margin: 0 0 5px 0; font-size: 12px; color: #2c3e50; border-bottom: 1px solid #ddd; padding-bottom: 3px; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 4px; }
+        .legend-item i { width: 12px; height: 12px; display: inline-block; margin-right: 5px; border-radius: 50%; }
     </style>
 </head>
 <body>
@@ -82,7 +80,7 @@
         
         <div class="map-title">
             <h1>Bethlehem Tourist Map</h1>
-            <p>Coverage: ~40 km² Buffer | HistoricalGIS Web App</p>
+            <p>Coverage Scope: ~40 km² Region</p>
         </div>
 
         <div id="map"></div>
@@ -92,86 +90,78 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Central Coordinates
-        const bethlehemCenter = [31.7054, 35.2024];
+        // Central Coordinates (Bethlehem Center)
+        const bCenter = [31.7054, 35.2024];
         
-        // Initialize Map
-        const map = L.map('map', {
-            zoomControl: true
-        }).setView(bethlehemCenter, 14);
+        // Initialize Map inside the frame
+        const map = L.map('map').setView(bCenter, 14);
 
-        // Standard Basemap Layer
+        // Add Base Map Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // 1. Defining Tourist Locations with Data and Thumbnail Image URLs
+        // Places dataset with descriptions and reliable placeholder imagery sizes
         const sites = [
             { 
                 name: "Church of the Nativity", 
                 coords: [31.7043, 35.2076], 
                 desc: "The birthplace of Jesus Christ.",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Birth_Place_of_Jesus_Church_of_Nativity.jpg/200px-Birth_Place_of_Jesus_Church_of_Nativity.jpg"
+                img: "https://picsum.photos/id/1015/150/100" 
             },
             { 
                 name: "Manger Square", 
                 coords: [31.7046, 35.2062], 
-                desc: "The main cultural square of Bethlehem.",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Manger_Square_Bethlehem_Palestine.jpg/200px-Manger_Square_Bethlehem_Palestine.jpg"
+                desc: "The city center and hub for cultural events.",
+                img: "https://picsum.photos/id/1016/150/100"
             },
             { 
                 name: "The Milk Grotto", 
                 coords: [31.7037, 35.2091], 
-                desc: "Sacred stone grotto, part of the Nativity.",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Palestine_Milk_Grotto_Bethlehem.jpg/200px-Palestine_Milk_Grotto_Bethlehem.jpg"
+                desc: "A holy historic shrine near Manger Square.",
+                img: "https://picsum.photos/id/1018/150/100"
             },
             { 
                 name: "Shepherds' Field", 
                 coords: [31.7028, 35.2341], 
-                desc: "Located in Beit Sahour, east of the city.",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Palestine-Shepherds%27_Field-Bethlehem.jpg/200px-Palestine-Shepherds%27_Field-Bethlehem.jpg"
+                desc: "Located in Beit Sahour, within the 40 km² area.",
+                img: "https://picsum.photos/id/1019/150/100"
             },
             { 
                 name: "Solomon's Pools", 
                 coords: [31.6894, 35.1691], 
-                desc: "Ancient historic water reservoirs.",
-                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Palestine-Solomons_Pools-Bethlehem.jpg/200px-Palestine-Solomons_Pools-Bethlehem.jpg"
+                desc: "Ancient reservoirs located southwest of the city.",
+                img: "https://picsum.photos/id/1022/150/100"
             }
         ];
 
-        // 2. Add Markers with Dynamic Popup Content including IMAGES
+        // Process markers and bind popups on-click with pictures
         sites.forEach(function(site) {
-            // Build the HTML content including the image
-            const popupContent = `
-                <strong style="color: #2980b9; font-size:14px;">${site.name}</strong><br>
-                <img src="${site.img}" alt="${site.name}" class="popup-image" /><br>
-                <p style="margin:5px 0 0 0; font-size:12px; color:#555;">${site.desc}</p>
+            const content = `
+                <strong style="color:#2980b9;">${site.name}</strong><br>
+                <img src="${site.img}" class="popup-img" />
+                <p style="margin:5px 0 0 0; font-size:11px; color:#555;">${site.desc}</p>
             `;
-
-            L.marker(site.coords)
-                .addTo(map)
-                .bindPopup(popupContent);
+            L.marker(site.coords).addTo(map).bindPopup(content);
         });
 
-        // Spatial Buffer to demonstrate the 40 sq km criteria
-        L.circle(bethlehemCenter, {
+        // 40 km² Spatial Radius Indicator (3.5 km radius)
+        L.circle(bCenter, {
             color: '#2980b9',
             fillColor: '#3498db',
             fillOpacity: 0.06,
-            radius: 3500 
+            radius: 3500
         }).addTo(map);
 
-        // 3. Adding Legend (معالم ومفتاح الخريطة) Control to the map
+        // Add Legend (معالم ومفتاح الخريطة) Control to bottom right
         const legend = L.control({ position: 'bottomright' });
 
         legend.onAdd = function (map) {
             const div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<h4>Map Legend</h4>';
-            // Item 1: Buffer Area
-            div.innerHTML += '<div class="legend-item"><i style="background: #3498db; border: 1px solid #2980b9; opacity: 0.4; border-radius: 0;"></i><span>40 km² Buffer Zone</span></div>';
-            // Item 2: Markers
-            div.innerHTML += '<div class="legend-item"><i style="background: #3870c5; width: 10px; height: 10px; border-radius: 50%;"></i><span>Tourist / Historic Site</span></div>';
+            div.innerHTML += '<div class="legend-item"><i style="background:rgba(52, 152, 219, 0.4); border:1px solid #2980b9; border-radius:0;"></i><span>40 km² Buffer Zone</span></div>';
+            div.innerHTML += '<div class="legend-item"><i style="background:#2980b9;"></i><span>Historic Site Marker</span></div>';
             return div;
         };
 
