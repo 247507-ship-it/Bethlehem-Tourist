@@ -12,76 +12,126 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            font-family: Arial, sans-serif;
+            background-color: #2c3e50; /* Dark elegant background behind the frame */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        /* Map container with forced full screen height */
+
+        /* Map Outer Frame/Container */
+        .map-frame {
+            width: 94%;
+            height: 90vh;
+            border: 8px solid #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
         #map {
             width: 100%;
-            height: 100vh;
-            background-color: #f0f0f0;
+            height: 100%;
         }
-        /* Styling for the info text block */
+
+        /* Map Title Overlay */
         .map-title {
             position: absolute;
             top: 20px;
-            left: 50px;
+            left: 20px;
             z-index: 1000;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            border-left: 5px solid #2980b9;
         }
-        .map-title h1 { margin: 0; font-size: 20px; color: #2c3e50; }
-        .map-title p { margin: 5px 0 0 0; font-size: 12px; color: #7f8c8d; }
+        .map-title h1 { margin: 0; font-size: 18px; color: #2c3e50; }
+        .map-title p { margin: 4px 0 0 0; font-size: 11px; color: #7f8c8d; }
+
+        /* Map Legend (معالم الخريطة) */
+        .legend {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px;
+            line-height: 18px;
+            color: #333;
+            border-radius: 6px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+            font-size: 12px;
+        }
+        .legend h4 { margin: 0 0 8px 0; font-size: 13px; color: #2c3e50; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+        .legend i { width: 14px; height: 14px; float: left; margin-right: 8px; opacity: 0.8; border-radius: 50%; }
+        .legend-item { display: flex; align-items: center; margin-bottom: 5px; }
+        .legend-item span { margin-left: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="map-title">
-        <h1>Bethlehem Historical & Tourist Map</h1>
-        <p>Coverage Area: ~40 km² (City Center & Environs)</p>
-    </div>
+    <div class="map-frame">
+        
+        <div class="map-title">
+            <h1>Bethlehem Tourist Map</h1>
+            <p>Project Scope: ~40 km² (GIS Web Analysis)</p>
+        </div>
 
-    <div id="map"></div>
+        <div id="map"></div>
+        
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Setup Bethlehem Center coordinates
+        // Central Coordinates
         const bethlehemCenter = [31.7054, 35.2024];
         
-        // Initialize map at zoom level 14 to perfectly cover the ~40 km² region
-        const map = L.map('map').setView(bethlehemCenter, 14);
+        // Initialize Map
+        const map = L.map('map', {
+            zoomControl: true
+        }).setView(bethlehemCenter, 14);
 
-        // Standard OpenStreetMap base layer (No 3D buildings layer added)
+        // Basemap Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Coordinates and textual data only (No image URLs or custom symbol assets)
+        // Historical Sites Dataset
         const sites = [
-            { name: "Church of the Nativity", coords: [31.7043, 35.2076], desc: "The birthplace of Jesus Christ." },
+            { name: "Church of the Nativity", coords: [31.7043, 35.2076], desc: "The birthplace of Jesus Christ and historic core." },
             { name: "Manger Square", coords: [31.7046, 35.2062], desc: "The focal point of Bethlehem city center." },
-            { name: "The Milk Grotto", coords: [31.7037, 35.2091], desc: "Sacred stone grotto nearby the Nativity." },
-            { name: "Shepherds' Field", coords: [31.7028, 35.2341], desc: "Located in Beit Sahour, within the 40 km² zone." },
-            { name: "Solomon's Pools", coords: [31.6894, 35.1691], desc: "Historic reservoirs located southwest of the city." }
+            { name: "The Milk Grotto", coords: [31.7037, 35.2091], desc: "Sacred stone grotto nearby the Nativity Church." },
+            { name: "Shepherds' Field", coords: [31.7028, 35.2341], desc: "Located in Beit Sahour, eastern part of the study zone." },
+            { name: "Solomon's Pools", coords: [31.6894, 35.1691], desc: "Ancient reservoirs located southwest of Bethlehem." }
         ];
 
-        // Standard Leaflet markers with plain text Popups
+        // Loop and attach operational Markers and Interactive Popups (تظهر عند الضغط)
         sites.forEach(function(site) {
             L.marker(site.coords)
                 .addTo(map)
-                .bindPopup(`<b>${site.name}</b><br>${site.desc}`);
+                .bindPopup(`<strong style="color: #2980b9; font-size:14px;">${site.name}</strong><br><p style="margin:5px 0 0 0; font-size:12px; color:#555;">${site.desc}</p>`);
         });
 
-        // 40 sq km area buffer (Radius = 3500 meters from center)
+        // Spatial Buffer Circle for ~40 km² Boundary
         L.circle(bethlehemCenter, {
             color: '#2980b9',
             fillColor: '#3498db',
-            fillOpacity: 0.07,
+            fillOpacity: 0.06,
             radius: 3500
-        }).addTo(map).bindPopup("Approximate 40 km² Tourist Buffer Zone");
+        }).addTo(map);
+
+        // Adding Legend (معالم ومفتاح الخريطة) Control
+        const legend = L.control({ position: 'bottomright' });
+
+        legend.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'legend');
+            div.innerHTML += '<h4>Map Legend</h4>';
+            div.innerHTML += '<div class="legend-item"><i style="background: #3498db; border: 1px solid #2980b9; opacity: 0.4; border-radius: 0;"></i><span>40 km² Buffer Zone</span></div>';
+            div.innerHTML += '<div class="legend-item"><i style="background: #3870c5; width: 10px; height: 10px; border-radius: 50%;"></i><span>Tourist / Historic Site</span></div>';
+            return div;
+        };
+
+        legend.addTo(map);
     </script>
 
 </body>
