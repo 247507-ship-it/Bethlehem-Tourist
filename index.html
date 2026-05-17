@@ -12,16 +12,16 @@
             margin: 0;
             padding: 0;
             height: 100%;
-            background-color: #2c3e50; /* Dark elegant background behind the frame */
+            background-color: #2c3e50; /* Dark modern background */
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Map Outer Frame/Container */
+        /* 1. The Map Frame - Professional layout wrapping the map */
         .map-frame {
-            width: 94%;
+            width: 95%;
             height: 90vh;
             border: 8px solid #ffffff;
             border-radius: 12px;
@@ -35,7 +35,7 @@
             height: 100%;
         }
 
-        /* Map Title Overlay */
+        /* Title Overlay Inside Frame */
         .map-title {
             position: absolute;
             top: 20px;
@@ -50,7 +50,17 @@
         .map-title h1 { margin: 0; font-size: 18px; color: #2c3e50; }
         .map-title p { margin: 4px 0 0 0; font-size: 11px; color: #7f8c8d; }
 
-        /* Map Legend (معالم الخريطة) */
+        /* 2. Styling for Popup Images - For the historic sites */
+        .popup-image {
+            width: 100%;
+            max-width: 150px;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* 3. Styling for Map Legend (معالم الخريطة) */
         .legend {
             background: rgba(255, 255, 255, 0.95);
             padding: 12px;
@@ -72,7 +82,7 @@
         
         <div class="map-title">
             <h1>Bethlehem Tourist Map</h1>
-            <p>Project Scope: ~40 km² (GIS Web Analysis)</p>
+            <p>Coverage: ~40 km² Buffer | HistoricalGIS Web App</p>
         </div>
 
         <div id="map"></div>
@@ -90,43 +100,77 @@
             zoomControl: true
         }).setView(bethlehemCenter, 14);
 
-        // Basemap Layer
+        // Standard Basemap Layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Historical Sites Dataset
+        // 1. Defining Tourist Locations with Data and Thumbnail Image URLs
         const sites = [
-            { name: "Church of the Nativity", coords: [31.7043, 35.2076], desc: "The birthplace of Jesus Christ and historic core." },
-            { name: "Manger Square", coords: [31.7046, 35.2062], desc: "The focal point of Bethlehem city center." },
-            { name: "The Milk Grotto", coords: [31.7037, 35.2091], desc: "Sacred stone grotto nearby the Nativity Church." },
-            { name: "Shepherds' Field", coords: [31.7028, 35.2341], desc: "Located in Beit Sahour, eastern part of the study zone." },
-            { name: "Solomon's Pools", coords: [31.6894, 35.1691], desc: "Ancient reservoirs located southwest of Bethlehem." }
+            { 
+                name: "Church of the Nativity", 
+                coords: [31.7043, 35.2076], 
+                desc: "The birthplace of Jesus Christ.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Birth_Place_of_Jesus_Church_of_Nativity.jpg/200px-Birth_Place_of_Jesus_Church_of_Nativity.jpg"
+            },
+            { 
+                name: "Manger Square", 
+                coords: [31.7046, 35.2062], 
+                desc: "The main cultural square of Bethlehem.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Manger_Square_Bethlehem_Palestine.jpg/200px-Manger_Square_Bethlehem_Palestine.jpg"
+            },
+            { 
+                name: "The Milk Grotto", 
+                coords: [31.7037, 35.2091], 
+                desc: "Sacred stone grotto, part of the Nativity.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Palestine_Milk_Grotto_Bethlehem.jpg/200px-Palestine_Milk_Grotto_Bethlehem.jpg"
+            },
+            { 
+                name: "Shepherds' Field", 
+                coords: [31.7028, 35.2341], 
+                desc: "Located in Beit Sahour, east of the city.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Palestine-Shepherds%27_Field-Bethlehem.jpg/200px-Palestine-Shepherds%27_Field-Bethlehem.jpg"
+            },
+            { 
+                name: "Solomon's Pools", 
+                coords: [31.6894, 35.1691], 
+                desc: "Ancient historic water reservoirs.",
+                img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Palestine-Solomons_Pools-Bethlehem.jpg/200px-Palestine-Solomons_Pools-Bethlehem.jpg"
+            }
         ];
 
-        // Loop and attach operational Markers and Interactive Popups (تظهر عند الضغط)
+        // 2. Add Markers with Dynamic Popup Content including IMAGES
         sites.forEach(function(site) {
+            // Build the HTML content including the image
+            const popupContent = `
+                <strong style="color: #2980b9; font-size:14px;">${site.name}</strong><br>
+                <img src="${site.img}" alt="${site.name}" class="popup-image" /><br>
+                <p style="margin:5px 0 0 0; font-size:12px; color:#555;">${site.desc}</p>
+            `;
+
             L.marker(site.coords)
                 .addTo(map)
-                .bindPopup(`<strong style="color: #2980b9; font-size:14px;">${site.name}</strong><br><p style="margin:5px 0 0 0; font-size:12px; color:#555;">${site.desc}</p>`);
+                .bindPopup(popupContent);
         });
 
-        // Spatial Buffer Circle for ~40 km² Boundary
+        // Spatial Buffer to demonstrate the 40 sq km criteria
         L.circle(bethlehemCenter, {
             color: '#2980b9',
             fillColor: '#3498db',
             fillOpacity: 0.06,
-            radius: 3500
+            radius: 3500 
         }).addTo(map);
 
-        // Adding Legend (معالم ومفتاح الخريطة) Control
+        // 3. Adding Legend (معالم ومفتاح الخريطة) Control to the map
         const legend = L.control({ position: 'bottomright' });
 
         legend.onAdd = function (map) {
             const div = L.DomUtil.create('div', 'legend');
             div.innerHTML += '<h4>Map Legend</h4>';
+            // Item 1: Buffer Area
             div.innerHTML += '<div class="legend-item"><i style="background: #3498db; border: 1px solid #2980b9; opacity: 0.4; border-radius: 0;"></i><span>40 km² Buffer Zone</span></div>';
+            // Item 2: Markers
             div.innerHTML += '<div class="legend-item"><i style="background: #3870c5; width: 10px; height: 10px; border-radius: 50%;"></i><span>Tourist / Historic Site</span></div>';
             return div;
         };
