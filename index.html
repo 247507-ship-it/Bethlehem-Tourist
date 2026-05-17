@@ -14,12 +14,13 @@
             height: 100%;
             font-family: Arial, sans-serif;
         }
-        /* Crucial: ensure the map container has explicit full viewport height */
+        /* Map container with forced full screen height */
         #map {
             width: 100%;
             height: 100vh;
-            background-color: #f0f0f0; /* Light gray background while loading */
+            background-color: #f0f0f0;
         }
+        /* Styling for the info text block */
         .map-title {
             position: absolute;
             top: 20px;
@@ -49,32 +50,32 @@
         // Setup Bethlehem Center coordinates
         const bethlehemCenter = [31.7054, 35.2024];
         
-        // Initialize map with zoom level 14 to represent the 40km² scope
+        // Initialize map at zoom level 14 to perfectly cover the ~40 km² region
         const map = L.map('map').setView(bethlehemCenter, 14);
 
-        // Add OpenStreetMap layer
+        // Standard OpenStreetMap base layer (No 3D buildings layer added)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Array of Bethlehem's key tourist assets
+        // Coordinates and textual data only (No image URLs or custom symbol assets)
         const sites = [
             { name: "Church of the Nativity", coords: [31.7043, 35.2076], desc: "The birthplace of Jesus Christ." },
             { name: "Manger Square", coords: [31.7046, 35.2062], desc: "The focal point of Bethlehem city center." },
             { name: "The Milk Grotto", coords: [31.7037, 35.2091], desc: "Sacred stone grotto nearby the Nativity." },
-            { name: "Shepherds' Field", coords: [31.7028, 35.2341], desc: "Located in Beit Sahour, part of the wider 40 km² zone." },
+            { name: "Shepherds' Field", coords: [31.7028, 35.2341], desc: "Located in Beit Sahour, within the 40 km² zone." },
             { name: "Solomon's Pools", coords: [31.6894, 35.1691], desc: "Historic reservoirs located southwest of the city." }
         ];
 
-        // Place markers onto the map
+        // Standard Leaflet markers with plain text Popups
         sites.forEach(function(site) {
             L.marker(site.coords)
                 .addTo(map)
                 .bindPopup(`<b>${site.name}</b><br>${site.desc}`);
         });
 
-        // Spatial Buffer to clearly demonstrate the required 40 sq km criteria to faculty
+        // 40 sq km area buffer (Radius = 3500 meters from center)
         L.circle(bethlehemCenter, {
             color: '#2980b9',
             fillColor: '#3498db',
