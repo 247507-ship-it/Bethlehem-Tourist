@@ -3,145 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bethlehem Tourist GIS Map</title>
+    <title>Bethlehem Tourist Map</title>
     
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
-        /* Modern aesthetic for a dashboard */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            background-color: #2c3e50;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
+            font-family: Arial, sans-serif;
         }
-
-        /* Essential Framework - Simple, clean outer frame to define the map area */
-        #map-container {
-            width: 96%;
-            height: 92vh;
-            margin: 4vh auto;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
-            padding: 10px;
-            box-sizing: border-box;
-            position: relative;
-        }
-
+        /* Map container with forced full screen height */
         #map {
             width: 100%;
-            height: 100%;
-            border-radius: 8px;
+            height: 100vh;
+            background-color: #f0f0f0;
         }
-
-        /* Overlay text Box */
-        .info-panel {
+        /* Styling for the info text block */
+        .map-title {
             position: absolute;
-            top: 25px;
-            left: 25px;
+            top: 20px;
+            left: 50px;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border-left: 6px solid #2980b9;
-        }
-        .info-panel h1 { margin: 0; font-size: 20px; color: #2c3e50; }
-        .info-panel p { margin: 6px 0 0 0; font-size: 12px; color: #7f8c8d; }
-
-        /* Dynamic Map Legend Control - Essential GIS element */
-        .legend-control {
             background: white;
-            padding: 12px;
-            line-height: 20px;
-            color: #333;
-            border-radius: 6px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            font-size: 13px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
-        .legend-control h4 { margin: 0 0 8px 0; font-size: 14px; color: #2c3e50; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
-        .legend-item { display: flex; align-items: center; margin-bottom: 6px; }
-        .legend-item i { width: 16px; height: 16px; display: inline-block; margin-right: 8px; border-radius: 50%; opacity: 0.8; }
-        .legend-item span { margin-left: 2px; }
-
-        /* General Popup Layout */
-        .custom-popup-content strong { color: #2980b9; font-size: 15px; }
-        .custom-popup-content p { margin: 6px 0 0 0; font-size: 13px; color: #555; }
+        .map-title h1 { margin: 0; font-size: 20px; color: #2c3e50; }
+        .map-title p { margin: 5px 0 0 0; font-size: 12px; color: #7f8c8d; }
     </style>
 </head>
 <body>
 
-    <div id="map-container">
-        
-        <div class="info-panel">
-            <h1>Bethlehem Tourist Map</h1>
-            <p>GIS Analysis Scope: ~40 km² Region Boundary</p>
-        </div>
-
-        <div id="map"></div>
-        
+    <div class="map-title">
+        <h1>Bethlehem Historical & Tourist Map</h1>
+        <p>Coverage Area: ~40 km² (City Center & Environs)</p>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Central Point (Coordinates are in order: [Latitude, Longitude])
-        const bethlehemCoords = [31.7054, 35.2024];
+        // Setup Bethlehem Center coordinates
+        const bethlehemCenter = [31.7054, 35.2024];
         
-        // Initialize the map, restricting interaction as needed to keep the context clean
-        const map = L.map('map', {
-            zoomControl: true,
-            scrollWheelZoom: true
-        }).setView(bethlehemCoords, 14);
+        // Initialize map at zoom level 14 to perfectly cover the ~40 km² region
+        const map = L.map('map').setView(bethlehemCenter, 14);
 
-        // Standard OpenStreetMap base map layer
+        // Standard OpenStreetMap base layer (No 3D buildings layer added)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Core Tourist Assets - Data points for Bethlehem's history
-        const historicalSites = [
-            { name: "Church of the Nativity", coords: [31.7043, 35.2076], description: "A major historic church and birthplace core." },
-            { name: "Manger Square", coords: [31.7046, 35.2062], description: "The cultural focal point of Bethlehem." },
-            { name: "The Milk Grotto", coords: [31.7037, 35.2091], description: "Sacred shrine located nearby Manger Square." },
-            { name: "Shepherds' Field", coords: [31.7028, 35.2341], description: "Located in Beit Sahour, an integral part of the buffer." },
-            { name: "Solomon's Pools", coords: [31.6894, 35.1691], description: "Historic reservoirs to the southwest." }
+        // Coordinates and textual data only (No image URLs or custom symbol assets)
+        const sites = [
+            { name: "Church of the Nativity", coords: [31.7043, 35.2076], desc: "The birthplace of Jesus Christ." },
+            { name: "Manger Square", coords: [31.7046, 35.2062], desc: "The focal point of Bethlehem city center." },
+            { name: "The Milk Grotto", coords: [31.7037, 35.2091], desc: "Sacred stone grotto nearby the Nativity." },
+            { name: "Shepherds' Field", coords: [31.7028, 35.2341], desc: "Located in Beit Sahour, within the 40 km² zone." },
+            { name: "Solomon's Pools", coords: [31.6894, 35.1691], desc: "Historic reservoirs located southwest of the city." }
         ];
 
-        // Process data points and attach popups for interactive view
-        historicalSites.forEach(function(site) {
+        // Standard Leaflet markers with plain text Popups
+        sites.forEach(function(site) {
             L.marker(site.coords)
                 .addTo(map)
-                .bindPopup(`<div class="custom-popup-content"><strong>${site.name}</strong><br><p>${site.description}</p></div>`);
+                .bindPopup(`<b>${site.name}</b><br>${site.desc}`);
         });
 
-        // BUFFER: GIS requirement - A 40km² boundary (radius ~3500m) 
-        L.circle(bethlehemCoords, {
+        // 40 sq km area buffer (Radius = 3500 meters from center)
+        L.circle(bethlehemCenter, {
             color: '#2980b9',
             fillColor: '#3498db',
-            fillOpacity: 0.08,
+            fillOpacity: 0.07,
             radius: 3500
-        }).addTo(map);
-
-        // Add Legend (معالم ومفتاح الخريطة) Control
-        const legend = L.control({ position: 'bottomright' });
-
-        legend.onAdd = function (map) {
-            const div = L.DomUtil.create('div', 'legend-control');
-            div.innerHTML += '<h4>Map Legend</h4>';
-            // Entry 1: The Buffer zone
-            div.innerHTML += '<div class="legend-item"><i style="background: rgba(52, 152, 219, 0.4); border: 2px solid #2980b9; border-radius: 0;"></i><span>~40 km² Buffer Zone</span></div>';
-            // Entry 2: Point Markers
-            div.innerHTML += '<div class="legend-item"><i style="background: #3870c5; border: 2px solid #ffffff; width: 14px; height: 14px;"></i><span>Historic / Tourist Site</span></div>';
-            return div;
-        };
-
-        legend.addTo(map);
-
+        }).addTo(map).bindPopup("Approximate 40 km² Tourist Buffer Zone");
     </script>
+
 </body>
 </html>
