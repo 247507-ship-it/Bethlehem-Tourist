@@ -52,7 +52,7 @@
 
     <div id="map"></div>
 
-    <script href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // Coordinates focused on Bethlehem Center
         // Zoom level 14 perfectly captures an area of approx 40 km² around the city
@@ -100,11 +100,10 @@
         locations.forEach(function(site) {
             L.marker(site.coords)
                 .addTo(map)
-                .bindPopup(`<b>${site.name}</b><br>${site.description}`)
-                .openPopup(); // Optional: removes openPopup() if you don't want them all open at once
+                .bindPopup(`<b>${site.name}</b><br>${site.description}`);
         });
 
-        // Optional: Add a visual circle showing the ~40 km² regional coverage zone
+        // Add a visual circle showing the ~40 km² regional coverage zone
         // 40 sq km area roughly equals a radius of ~3500 meters from the center
         L.circle(bethlehemCenter, {
             color: '#3498db',
